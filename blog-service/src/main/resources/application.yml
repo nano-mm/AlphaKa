@@ -1,0 +1,130 @@
+server:
+  port: 8003
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  application:
+    name: blog-service
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  #jpa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  #Kafka
+  kafka:
+    consumer:
+      group-id: blog-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+
+# local 프로필
+---
+
+spring:
+
+  config:
+    activate:
+      on-profile: local
+
+  cloud:
+    kubernetes:
+      enabled: false
+
+  #datasource
+  datasource:
+    url: url
+    username: username
+    password: password
+
+  #redis
+  data:
+    redis:
+      host: host
+      port: 6379
+
+  #Kafka
+  kafka:
+    bootstrap-servers: url
+
+cloud:
+  aws:
+    bucket: bucket
+    stack:
+      auto: false
+    region:
+      static: region
+    credentials:
+      accessKey: accessKey
+      secretKey: secretKey
+
+# eureka
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: url
+
+# develop 프로필
+---
+spring:
+
+  config:
+    activate:
+      on-profile: develop
+
+  #datasource
+  datasource:
+    url: '${MYSQL_URL}/blog_service'
+    username: "${MYSQL_USERNAME}"
+    password: "${MYSQL_PASSWORD}"
+    hikari:
+
+      data-source-properties:
+        rewriteBatchStatements: true
+
+  #redis
+  data:
+    redis:
+      host: "${REDIS_HOST}"
+      port: "${REDIS_PORT}"
+      password: "${REDIS_PASSWORD}"
+
+  #Kafka
+  kafka:
+    bootstrap-servers: "${KAFKA_BROKER_SERVER}"
+
+eureka:
+  client:
+    enabled: false
+
+cloud:
+  aws:
+    bucket: "${AWS_BUCKET}"
+    stack:
+      auto: false
+    region:
+      static: "${AWS_REGION}"
+    credentials:
+      accessKey: "${AWS_ACCESSKEY}"
+      secretKey: "${AWS_SECRETKEY}"
