@@ -1,0 +1,39 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-service
+
+
+# local ???
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: file:.env[.properties]
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: "${LOCAL_CLOUD_CONFIG_URI}"
+
+
+# develop ???
+---
+spring:
+  config:
+    activate:
+      on-profile: develop
+  cloud:
+    config:
+      server:
+        git:
+          uri: "${DEVELOP_CLOUD_CONFIG_URI}"
+          private-key: "${DEVELOP_CLOUD_CONFIG_PRIVATE_KEY}"
+
+          default-label: main
+          ignore-local-ssh-settings: true
