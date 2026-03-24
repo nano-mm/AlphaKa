@@ -1,0 +1,149 @@
+#포트 설정
+server:
+  port: 8001
+
+springdoc:
+  swagger-ui:
+    operationsSorter: alpha # API 메서드 순서를 코드 정의 순으로 정렬
+  api-docs:
+    path: v3/api-docs
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: account-disable-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: latest
+
+gateway:
+  url: http://127.0.0.1:8000
+
+logging:
+  pattern:
+    console: >
+      %d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} 
+      %highlight(%5level) 
+      %magenta(${PID:-}) --- [%15.15thread] [%X{trace.id:-}] 
+      %cyan(%logger{36}) : %msg
+
+# local 프로필
+---
+spring:
+
+  config:
+    import: optional:file:.env[.properties]
+    activate:
+      on-profile: local
+
+  cloud:
+    kubernetes:
+      enabled: false
+
+  redis:
+    host: "${REDIS_HOST}"
+    port: "${REDIS_PORT}"
+    password: "${REDIS_PASSWORD}"
+
+
+  datasource:
+    url: "${DB_URL}"
+    username: "${DB_USERNAME}"
+    password: "${DB_PASSWORD}"
+
+  kafka:
+    bootstrap-servers: "${BROKER_URL}"
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    metadata-map:
+      instanceName: ${spring.application.name}
+
+cloud:
+  aws:
+    bucket: "${AWS_BUCKET}"
+    stack:
+      auto: false
+    region:
+      static: "${AWS_REGION}"
+    credentials:
+      accessKey: "${AWS_ACCESSKEY}"
+      secretKey: "${AWS_SECRETKEY}"
+
+jwt:
+  secretKey: "${JWT_SECRET_KEY}"
+
+user:
+  profile:
+    defaultImageUrl: "${DEFAULT_PROFILE_IMAGE_URL}"
+
+# develop 프로필
+---
+spring:
+  config:
+    activate:
+      on-profile: develop
+
+  redis:
+    host: "${REDIS_HOST}"
+    port: "${REDIS_PORT}"
+    password: "${REDIS_PASSWORD}"
+
+  datasource:
+    url: "${MYSQL_URL}/user_service"
+    username: "${MYSQL_USERNAME}"
+    password: "${MYSQL_PASSWORD}"
+
+  kafka:
+    bootstrap-servers: "${KAFKA_BROKER_SERVER}"
+
+eureka:
+  client:
+    enabled: false
+
+gateway:
+  url: "${GATEWAY_URL}"
+
+cloud:
+  aws:
+    bucket: "${AWS_BUCKET}"
+    stack:
+      auto: false
+    region:
+      static: "${AWS_REGION}"
+    credentials:
+      accessKey: "${AWS_ACCESSKEY}"
+      secretKey: "${AWS_SECRETKEY}"
+
+jwt:
+  secretKey: "${JWT_SECRETKEY}"
+
+user:
+  profile:
+    defaultImageUrl: "${DEFAULT_PROFILE_IMAGE_URL}"
+
+logging:
+  level:
+    org.springframework.cloud.kubernetes: DEBUG
+    io.kubernetes.client: DEBUG
